@@ -36,8 +36,8 @@ public class Main extends Application {
     void drawAnts(GraphicsContext context) {
         context.clearRect(0, 0, WIDTH, HEIGHT);
         for (Ant ant : ants) {
-            context.setFill(Color.BLACK);
-            context.fillOval(ant.x, ant.y, 5, 5);
+            context.setFill(ant.color);
+            context.fillOval(ant.x, ant.y, 10, 10);
         }
     }
 
@@ -56,9 +56,26 @@ public class Main extends Application {
         return ant;
     }
 
+    Ant aggravateAnt(Ant ant) {
+        ArrayList<Ant> closeAnts = ants.stream()
+                                    .filter(ant2 -> {
+                                        return Math.abs(ant.x - ant2.x) <= 20 && Math.abs(ant.y - ant2.y) <= 20;
+                                    })
+                                    .collect(Collectors.toCollection(ArrayList<Ant>::new));
+
+        if (closeAnts.size() > 1) {
+            ant.color = Color.RED;
+        }
+        else {
+            ant.color = Color.BLACK;
+        }
+        return ant;
+    }
+
     void updateAnts() {
         ants = ants.parallelStream()
                 .map(this::moveAnt)
+                .map(this::aggravateAnt)
                 .collect(Collectors.toCollection(ArrayList<Ant>::new));
     }
 
